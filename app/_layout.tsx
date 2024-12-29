@@ -12,7 +12,10 @@ export default function RootLayout() {
         <Stack.Screen name="(parentTabs)" options={
         {headerShown:false }
       } />
-        <Stack.Screen name="(teacherTabs)" options={
+        <Stack.Screen name="(studentTabs)" options={
+        {headerShown:false }
+      } />
+        <Stack.Screen name="Pages" options={
         {headerShown:false }
       } />
 
