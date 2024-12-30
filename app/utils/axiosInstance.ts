@@ -3,7 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Define the Axios instance
 const apiClient = axios.create({
-  baseURL: 'https://0ntl07vt-8080.inc1.devtunnels.ms/api/v1', // Replace with your base API URL
+  // baseURL: 'https://0ntl07vt-8080.inc1.devtunnels.ms/api/v1', // Replace with your base API URL
+  baseURL: "https://sms-backend-6auh.onrender.com/api/v1",
   timeout: 10000, // Optional: Timeout after 10 seconds
 });
 

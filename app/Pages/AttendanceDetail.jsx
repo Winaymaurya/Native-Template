@@ -1,8 +1,10 @@
-import { View, Text,TouchableOpacity,ScrollView } from 'react-native'
-import React from 'react'
+import { View, Text,TouchableOpacity,ScrollView, Alert } from 'react-native'
+import {useEffect} from 'react'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { Calendar } from 'react-native-calendars';
+import apiClient from './../utils/axiosInstance'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const AttendanceDetail = () => {
     const router=useRouter()
     const attendanceData = {
@@ -20,9 +22,31 @@ const AttendanceDetail = () => {
             return { backgroundColor: 'red',  padding: 1 };
           }
         }
-        return {}; // Default style for days with no attendance data
+        return {}; 
       };
-    
+    const getstudentAttendance=async()=>{
+      const student=await AsyncStorage.getItem("studentId")
+      const endDate=new Date().toISOString().split("T")[0];;
+      const startDate= '2024-03-01'
+      // console.log(student,endDate,startDate)
+      try {
+        const { data } = await apiClient.get(`attendance/student`, {
+          params: {
+            student,
+            startDate,
+            endDate,
+          },
+        });
+        console.log(data?.data)
+        if(data?.success){
+          Alert.alert(data?.message)
+        }
+      } catch (error) {
+        console.log(error)
+        
+      }
+    }
+
       // Prepare markedDates with custom styles
       const markedDates = Object.keys(attendanceData).reduce((acc, date) => {
         acc[date] = {
@@ -35,6 +59,10 @@ const AttendanceDetail = () => {
         };
         return acc;
       }, {});
+
+      useEffect(()=>{
+      //  getstudentAttendance()
+      },[])
   return (
     <View>
       <View className="bg-[#3243da] justify-start p-3 flex-row items-center">

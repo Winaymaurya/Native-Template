@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Text, TouchableOpacity, View, TextInput, Image, Alert, ScrollView, Keyboard } from "react-native";
+import { Text, TouchableOpacity, View, TextInput, Image, Alert, ScrollView, Keyboard ,StatusBar} from "react-native";
 import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts } from 'expo-font';
@@ -92,6 +92,7 @@ export default function Index() {
   }, []);
   return (
     <View style={{ flex: 1 }} className="bg-gray-100">
+      <StatusBar backgroundColor="#3243da" barStyle="light-content" />
       {/* Top Section */}
       <View className="h-[25vh] w-[100%] bg-blue-800 rounded-br-[80%]">
         <Image source={require('./../assets/images/login.png')} className=" scale-95 -ml-[12%] h-full w-[100%]  " />

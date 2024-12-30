@@ -26,7 +26,7 @@ const AttendanceMonthly = () => {
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={32} color="white" />
         </TouchableOpacity>
-        <Text className="text-2xl tracking-wider text-white ml-4 font-mediumM">
+        <Text className="text-xl tracking-wider text-white ml-4 font-mediumM">
           Attendance Monthly
         </Text>
       </View>
@@ -39,24 +39,24 @@ const AttendanceMonthly = () => {
           {months.map((month, index) => (
         <View key={index} className="flex-row justify-evenly mb-4">
           {/* Month Name */}
-          <TouchableOpacity className="bg-blue-900 h-20 w-20 rounded-full p-2 flex items-center justify-center" onPress={()=>router.push('Pages/AttendanceDetail')}>
+          <TouchableOpacity className="bg-blue-900 h-16 w-[16%] rounded-full p-2 flex items-center justify-center" onPress={()=>router.push('Pages/AttendanceDetail')}>
             <Text className="text-white font-mediumM text-lg">{month.name}</Text>
           </TouchableOpacity>
 
           {/* Present */}
-          <View className="bg-green-100 w-28 flex items-center justify-center rounded-lg">
+          <View className="bg-green-100 w-[23%] flex items-center justify-center rounded-lg">
             <Text className="text-green-700 font-mediumM text-xl text-center">{month.present}</Text>
             <Text className="text-green-700 font-mediumM text-sm text-center">Present</Text>
           </View>
 
           {/* Absent */}
-          <View className="bg-red-100 w-28 flex items-center justify-center rounded-lg">
+          <View className="bg-red-100 w-[23%] flex items-center justify-center rounded-lg">
             <Text className="text-red-700 font-mediumM text-xl text-center">{month.absent}</Text>
             <Text className="text-red-700 font-mediumM text-sm text-center">Absent</Text>
           </View>
 
           {/* Leave */}
-          <View className="bg-blue-100 w-28 flex items-center justify-center rounded-lg">
+          <View className="bg-blue-100 w-[23%] flex items-center justify-center rounded-lg">
             <Text className="text-blue-700 font-mediumM text-xl text-center">{month.leave}</Text>
             <Text className="text-blue-700 font-mediumM text-sm text-center">Leave</Text>
           </View>

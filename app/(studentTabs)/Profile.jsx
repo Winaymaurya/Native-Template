@@ -2,19 +2,23 @@ import { View, Text, Alert, Image, ScrollView, ImageBackground, TouchableOpacity
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-
+import { ActivityIndicator } from 'react-native-paper';
 import apiClient from "./../utils/axiosInstance";
 const Profile = () => {
   const router = useRouter()
   const [student, setStudent] = useState([])
+  const [loading, setLoading] = useState(false)
   const getProfile = async () => {
+    setLoading(true)
     try {
       const id = await AsyncStorage.getItem('studentId')
       const { data } = await apiClient.get(`student/${id}`)
       console.log(data?.data)
       setStudent(data?.data)
+      setLoading(false)
     } catch (error) {
       console.log(error)
+      setLoading(false)
     }
   }
   const handleLogout = async = () => {
@@ -57,8 +61,9 @@ const Profile = () => {
             {student?.className?.name} {student?.section?.name}
           </Text>
         </ImageBackground>
-     
-
+      
+     {!loading?
+  <View>
       {/* Profile Details */}
       <View className="bg-white rounded-lg shadow-md p-6 mt-2">
         <Text className="text-lg font-mediumM text-gray-800 mb-4">Student Details</Text>
@@ -145,7 +150,8 @@ const Profile = () => {
         </View>
       </View>
 
-      
+      </View> :
+      <ActivityIndicator animating={true} color={'blue'} size={'large'} className='mt-20'/>}
     </ScrollView>
   )
 }
