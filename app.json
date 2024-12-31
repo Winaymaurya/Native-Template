@@ -3,14 +3,14 @@
     "name": "SMSStudent",
     "slug": "SMS-Student",
     "version": "1.0.0",
-    "newArchEnabled": true ,
+    "newArchEnabled": true,
     "owner": "winaymaurya",
     "orientation": "portrait",
     "icon": "./assets/images/student.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/student.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -19,7 +19,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/student.png",
+        "foregroundImage": "./assets/images/s.gif",
         "backgroundColor": "#ffffff"
       },
       "package": "com.winaymaurya.Student"
@@ -41,7 +41,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "7524dd6d-4b4b-47b0-a05e-085fa83f9031"
+        "projectId": "e078cf4e-87d2-4eea-be41-1d26e172dbd1"
       }
     }
   }

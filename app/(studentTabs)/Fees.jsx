@@ -113,24 +113,62 @@ const Fees = () => {
       id: 2,
       label: 'Paid Fee',
       content: (
-        <View className="p-4">
+        <View className="p-4 ">
           <Text className="text-2xl font-mediumM text-green-800 mb-2">Paid Fee Details</Text>
-          {!loading ? (
-            <ScrollView>
-              <View className="bg-green-100 rounded-xl p-2">
-                <Text className="text-lg font-mediumM text-blue-900">Paid Monthly Fee -</Text>
-                {fees?.paidSummary?.fees?.map((f, index) => (
-                  <View key={f._id || `paid-${index}`} className="flex-row justify-between px-6 mt-1">
-                    <Text className="font-mediumM text-blue-800 tracking-wider">{f.name}</Text>
-                    <Text className="font-mediumM text-blue-800 tracking-wider">{f.amount}</Text>
+          {!loading ? <ScrollView className=''>
+            <View className='bg-green-100 rounded-xl p-2 '>
+              <Text className="text-lg font-mediumM text-blue-900 ">Paid Monthly Fee -</Text>
+              <View>
+                {fees?.paidSummary?.fees?.map((f) => (
+                  <View key={f._id} className='flex-row justify-between px-6 mt-1'>
+                    <Text className='font-mediumM text-blue-800 tracking-wider'>{f.name}</Text>
+                    <Text className='font-mediumM text-blue-800 tracking-wider'>{f.amount}</Text>
                   </View>
                 ))}
+                <View className='flex-row px-6 items-end justify-end mt-2 border-t-[2px] border-gray-400'>
+                  <Text className='text-[16px] font-mediumM text-blue-800 tracking-wider'>Monthly Fees Total : &nbsp;</Text>
+                  <Text className='text-[16px] font-mediumM tracking-wider'>{fees?.paidSummary?.totalFees}</Text>
+                </View>
               </View>
-              {/* Other sections */}
-            </ScrollView>
-          ) : (
-            <ActivityIndicator animating color="green" size="large" className="mt-24" />
-          )}
+            </View>
+            <View className='bg-green-100 rounded-xl p-2 mt-4'>
+              <Text className="text-lg font-mediumM text-blue-900 ">Paid Transport Fee -</Text>
+              <View>
+                {fees?.paidSummary?.transport?.map((f) => (
+                  <View key={f._id} className='flex-row justify-between px-6 mt-1'>
+                    <Text className='font-mediumM text-blue-800 tracking-wider'>{f.name}</Text>
+                    <Text className='font-mediumM text-blue-800 tracking-wider'>{f.amount}</Text>
+                  </View>
+                ))}
+                <View className='flex-row px-6 items-end justify-end mt-2 border-t-[2px] border-gray-400'>
+                  <Text className='text-[16px] font-mediumM text-blue-800 tracking-wider'>Monthly Fees Total : &nbsp;</Text>
+                  <Text className='text-[16px] font-mediumM tracking-wider'>{fees?.paidSummary?.totalTransport}</Text>
+                </View>
+              </View>
+            </View>
+            <View className='bg-green-100 rounded-xl p-2 mt-4 '>
+              <Text className="text-lg font-mediumM text-blue-900 ">Paid Other Fee -</Text>
+              <View>
+                {fees?.paidSummary?.other?.map((f) => (
+                  <View key={f._id} className='flex-row justify-between px-6 mt-1'>
+                    <Text className='font-mediumM text-blue-800 tracking-wider'>{f.name}</Text>
+                    <Text className='font-mediumM text-blue-800 tracking-wider'>{f.amount}</Text>
+                  </View>
+                ))}
+                <View className='flex-row px-6 items-end justify-end mt-2 border-t-[2px] border-gray-400'>
+                  <Text className='text-[16px] font-mediumM text-blue-800 tracking-wider'>Monthly Fees Total : &nbsp;</Text>
+                  <Text className='text-[16px] font-mediumM tracking-wider'>{fees?.paidSummary?.totalOther}</Text>
+                </View>
+              </View>
+            </View>
+            <View className='flex-row rounded-xl px-6  py-2 items-end justify-end mt-2 bg-blue-200 mb-20'>
+              <Text className='text-[19px] font-mediumM text-blue-800 tracking-wider'>Grand Total : &nbsp;</Text>
+              <Text className='text-[19px] font-mediumM tracking-wider text-blue-800'>{fees?.paidSummary?.total}</Text>
+            </View>
+          </ScrollView>
+            :
+            <ActivityIndicator animating={true} color={'green'} size={'large'} className='mt-24' />
+          }
         </View>
       ),
     },
@@ -140,20 +178,72 @@ const Fees = () => {
       content: (
         <View className="p-4">
           <Text className="text-2xl font-mediumM text-blue-800 mb-4">Fee Payment History</Text>
-          {!loading2 ? (
-            <ScrollView className="mb-24">
-              {feeHistory?.map((h, index) => (
-                <View key={h._id || `history-${index}`} className="bg-blue-100 mb-4 rounded-xl">
-                  <Text className="text-lg font-mediumM mb-2 px-4">
-                    &nbsp; Date: {h?.createdAt.split("T")[0]}
-                  </Text>
-                  {/* Other content */}
+       {!loading2?   
+        <ScrollView className="mb-24">
+            {feeHistory?.map((h, i) => (
+              <View className="bg-blue-100  mb-4 rounded-xl " key={i}>
+                <Text className="text-lg font-mediumM mb-2 px-4">
+                  &nbsp; Date: {h?.createdAt.split("T")[0]}
+                </Text>
+                <View className="justify-between px-4">
+                  <View>
+                    <Text className="text-gray-500 font-mediumM text-lg border-b mb-1">Monthly Fee :</Text>
+                    {h?.fees?.length !== 0 ? (
+                      <View>
+                        {h?.fees?.map((f) => (
+                          <View key={f._id} className="flex-row justify-between px-4 ">
+                            <Text className="text-blue-900 font-mediumM text-[16px]">{f.name} -</Text>
+                            <Text className="text-blue-900 font-mediumM text-[16px]">{f.amount}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    ) : (
+                      ''
+                    )}
+                  </View>
+                  {h?.transport.length !== 0 ? (
+                    <View>
+                      <Text className="text-gray-500 font-mediumM text-lg border-b mb-1">Transport Fee :</Text>
+                      <View>
+                        {h?.transport?.map((t) => (
+                          <View key={t._id} className="flex-row justify-between px-4">
+                            <Text className="text-blue-900 font-mediumM text-[15px]">{t.name}-</Text>
+                            <Text className="text-blue-900 font-mediumM text-[15px]">{t.amount}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  ) : (
+                    ''
+                  )}
+
+                  {h?.other?.length !== 0 ?
+                    <View>
+                      <Text className="text-gray-500 font-mediumM text-lg border-b mb-1">Other Fee :</Text>
+                      <View>
+                        {h?.other?.map((o) => (
+                          <View key={o._id} className="flex-row justify-between px-4">
+                            <Text className="text-blue-900 font-mediumM text-[15px]">{o.name}-</Text>
+                            <Text className="text-blue-900 font-mediumM text-[15px]">{o.amount}</Text>
+                          </View>
+                        ))}
+                      </View>
+
+                    </View> : ''}
                 </View>
-              ))}
-            </ScrollView>
-          ) : (
-            <ActivityIndicator animating color="blue" size="large" className="mt-24" />
-          )}
+                <View className="mt-4 flex-row items-center justify-end p-1 bg-blue-700 rounded-xl px-2">
+                  <Text className="text-lg font-mediumM text-white tracking-wider">Total:</Text>
+                  <Text className="text-lg font-boldM text-white tracking-wider ml-6">{h.total}</Text>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+          :
+          <View className='mt-20'>
+
+            <ActivityIndicator animating={true} color={'blue'} size={'large'} />
+          </View>
+           }
         </View>
       ),
     },

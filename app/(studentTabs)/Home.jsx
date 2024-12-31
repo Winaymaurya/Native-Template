@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView,Image } from 'react-native';
 import React from 'react';
 import { useRouter } from 'expo-router';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -23,9 +23,9 @@ const Home = () => {
           className="bg-[#3243da] m-1 w-[30%] h-28 mt-4 rounded-md flex justify-center items-center"
           onPress={() => router.push('Pages/AttendanceMonthly')}
         >
-          <FontAwesome5 name="address-book" size={44} color="white" />
+         <Image source={require('./../../assets/images/attendance.png')} className=" h-14 w-14" />
           <View>
-            <Text className="text-white text-center rounded-xl p-1 text-md font-regularM">
+            <Text className="text-white text-center rounded-xl py-1 text-md font-regularM">
               Attendance
             </Text>
           </View>
@@ -34,15 +34,15 @@ const Home = () => {
           className="bg-[#3243da] m-1 w-[30%] h-28 mt-4 rounded-md flex justify-center items-center"
           onPress={() => router.push('Pages/Notice')}
         >
-          <AntDesign name="calendar" size={52} color="white" />
+         <Image source={require('./../../assets/images/notice.png')} className=" h-14 w-16" />
           <View>
-            <Text className="text-md text-white text-center rounded-xl p-1 font-regularM">
+            <Text className="text-md text-white text-center rounded-xl py-1 font-regularM">
               Notice
             </Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity className="bg-[#3243da] m-1 w-[30%] h-28 mt-4 rounded-md flex justify-center items-center">
-          <AntDesign name="book" size={52} color="white" />
+        <Image source={require('./../../assets/images/test.png')} className=" h-14 w-14" />
           <View>
             <Text className="text-md text-white text-center rounded-xl p-1 font-regularM">
               Test
@@ -50,9 +50,9 @@ const Home = () => {
           </View>
         </TouchableOpacity>
         <TouchableOpacity className="bg-[#3243da] m-1 w-[30%] h-28 mt-4 rounded-md flex justify-center items-center">
-          <AntDesign name="calendar" size={52} color="white" />
+        <Image source={require('./../../assets/images/report-card.png')} className=" h-14 w-14" />
           <View>
-            <Text className="text-md text-white text-center rounded-xl p-1 font-regularM">
+            <Text className="text-md text-white text-center rounded-xl py-1 font-regularM">
               Report Card
             </Text>
           </View>
@@ -61,9 +61,9 @@ const Home = () => {
           className="bg-[#3243da] m-1 w-[30%] h-28 mt-4 rounded-md flex justify-center items-center"
           onPress={() => router.push('Pages/Calendar')}
         >
-          <AntDesign name="calendar" size={52} color="white" />
+          <Image source={require('./../../assets/images/calendar.png')} className=" h-14 w-14" />
           <View>
-            <Text className="text-md text-white text-center rounded-xl p-1 font-regularM">
+            <Text className="text-md text-white text-center rounded-xl py-1 font-regularM">
               Calendar
             </Text>
           </View>
@@ -72,9 +72,9 @@ const Home = () => {
           className="bg-[#3243da] m-1 w-[30%] h-28 mt-4 rounded-md flex justify-center items-center"
           onPress={() => router.push('Pages/Homework')}
         >
-          <AntDesign name="calendar" size={52} color="white" />
+             <Image source={require('./../../assets/images/homework.png')} className=" h-14 w-14" />
           <View>
-            <Text className="text-md text-white text-center rounded-xl p-1 font-regularM">
+            <Text className="text-md text-white text-center rounded-xl py-1 font-regularM">
               Homework
             </Text>
           </View>

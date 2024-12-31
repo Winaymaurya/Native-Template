@@ -28,7 +28,7 @@ const AttendanceDetail = () => {
       const student=await AsyncStorage.getItem("studentId")
       const endDate=new Date().toISOString().split("T")[0];;
       const startDate= '2024-03-01'
-      // console.log(student,endDate,startDate)
+      console.log(student,endDate,startDate)
       try {
         const { data } = await apiClient.get(`attendance/student`, {
           params: {
@@ -43,6 +43,7 @@ const AttendanceDetail = () => {
         }
       } catch (error) {
         console.log(error)
+        Alert.alert(error?.message)
         
       }
     }
@@ -61,7 +62,7 @@ const AttendanceDetail = () => {
       }, {});
 
       useEffect(()=>{
-      //  getstudentAttendance()
+       getstudentAttendance()
       },[])
   return (
     <View>
@@ -69,7 +70,7 @@ const AttendanceDetail = () => {
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={32} color="white" />
         </TouchableOpacity>
-        <Text className="text-2xl tracking-wider text-white ml-4 font-mediumM">
+        <Text className="text-xl tracking-wider text-white ml-4 font-mediumM">
           Attendance Detail
         </Text>
       </View>
