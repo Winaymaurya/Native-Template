@@ -41,6 +41,7 @@ const Fees = () => {
       const { data } = await apiClient.get(`studentFees/history/${id}`);
       if (data?.success) {
         setFeeHistory(data?.data);
+         await AsyncStorage.setItem('feeHistory', JSON.stringify(data?.data.length));
       }
     } catch (error) {
       console.log(error);
@@ -141,7 +142,7 @@ const Fees = () => {
                   </View>
                 ))}
                 <View className='flex-row px-6 items-end justify-end mt-2 border-t-[2px] border-gray-400'>
-                  <Text className='text-[16px] font-mediumM text-blue-800 tracking-wider'>Monthly Fees Total : &nbsp;</Text>
+                  <Text className='text-[16px] font-mediumM text-blue-800 tracking-wider'>Transport Fees Total : &nbsp;</Text>
                   <Text className='text-[16px] font-mediumM tracking-wider'>{fees?.paidSummary?.totalTransport}</Text>
                 </View>
               </View>
@@ -156,14 +157,14 @@ const Fees = () => {
                   </View>
                 ))}
                 <View className='flex-row px-6 items-end justify-end mt-2 border-t-[2px] border-gray-400'>
-                  <Text className='text-[16px] font-mediumM text-blue-800 tracking-wider'>Monthly Fees Total : &nbsp;</Text>
+                  <Text className='text-[16px] font-mediumM text-blue-800 tracking-wider'>Other Fees Total : &nbsp;</Text>
                   <Text className='text-[16px] font-mediumM tracking-wider'>{fees?.paidSummary?.totalOther}</Text>
                 </View>
               </View>
             </View>
-            <View className='flex-row rounded-xl px-6  py-2 items-end justify-end mt-2 bg-blue-200 mb-20'>
-              <Text className='text-[19px] font-mediumM text-blue-800 tracking-wider'>Grand Total : &nbsp;</Text>
-              <Text className='text-[19px] font-mediumM tracking-wider text-blue-800'>{fees?.paidSummary?.total}</Text>
+            <View className='mt-4 flex-row items-center justify-end p-2 bg-blue-700 rounded-xl px-2 mb-20'>
+              <Text className='text-[19px] font-mediumM text-white tracking-wider'>Grand Total : &nbsp;</Text>
+              <Text className='text-[19px] font-mediumM tracking-wider text-white'>{fees?.paidSummary?.total}</Text>
             </View>
           </ScrollView>
             :

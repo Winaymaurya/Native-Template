@@ -10,6 +10,7 @@ import {
 } from '@expo-google-fonts/montserrat';
 
 import apiClient from "./utils/axiosInstance";
+import * as Notifications from 'expo-notifications';
 
 export default function Index() {
   const router = useRouter();
@@ -26,14 +27,16 @@ export default function Index() {
         Alert.alert("Error", "Please enter both StudentID and password.");
         return;
       }
+      const deviceToken = (await Notifications.getExpoPushTokenAsync()).data;
+      console.log('Push Token:', deviceToken);
       setLoading(true);
-      const payload = { studentId: id, password };
+      const payload = { studentId: id, password, deviceToken };
       const { data } = await apiClient.post(`login/student`, payload);
       if (data?.success) {
         await AsyncStorage.setItem('token', data?.accessToken);
         await AsyncStorage.setItem('name', `${data?.data?.firstName} ${data?.data?.lastName}`);
-        await AsyncStorage.setItem('profile', data?.data?.profilePhoto);
         await AsyncStorage.setItem('studentId', data?.data._id);
+        await AsyncStorage.setItem('student', JSON.stringify(data?.data));
         Alert.alert("Success", data?.message);
         router.push('/Home');
       } else {

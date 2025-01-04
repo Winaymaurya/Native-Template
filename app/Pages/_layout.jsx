@@ -40,6 +40,14 @@ export default ()=> {
       }}
     />
         <Tabs.Screen
+      name="Quiz"
+      options={{
+        tabBarStyle: { display: 'none' }, // Hide tab bar
+        headerShown: false, // Hide header
+        tabBarButton: () => null, // Remove it from the tab bar entirely
+      }}
+    />
+        <Tabs.Screen
       name="Notice"
       options={{
         tabBarStyle: { display: 'none' }, // Hide tab bar

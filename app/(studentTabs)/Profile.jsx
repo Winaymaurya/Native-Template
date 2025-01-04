@@ -4,16 +4,19 @@ import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { ActivityIndicator } from 'react-native-paper';
 import apiClient from "./../utils/axiosInstance";
+import * as ImagePicker from 'expo-image-picker';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 const Profile = () => {
   const router = useRouter()
   const [student, setStudent] = useState([])
+  const [image, setImage] = useState(null)
   const [loading, setLoading] = useState(false)
   const getProfile = async () => {
     setLoading(true)
     try {
       const id = await AsyncStorage.getItem('studentId')
       const { data } = await apiClient.get(`student/${id}`)
-      console.log(data?.data)
       setStudent(data?.data)
       setLoading(false)
     } catch (error) {
@@ -28,39 +31,74 @@ const Profile = () => {
     AsyncStorage.removeItem('id');
     Alert.alert("Logged out", "You have been logged out successfully.");
   }
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images', 'videos'],
+      allowsEditing: true,
+      aspect: [3, 4],
+      quality: 1,
+    });
 
+    console.log(result);
+
+    if (!result.canceled) {
+      const imageUri = result.assets[0].uri;
+      setImage(imageUri);
+      await AsyncStorage.setItem('profilePhoto', imageUri);
+    }
+  };
+   const loadImage = async () => {
+      const savedImage = await AsyncStorage.getItem('profilePhoto');
+      if (savedImage) {
+        setImage(savedImage);
+        console.log(savedImage)
+      }
+    };
   useEffect(() => {
     getProfile()
+    
+
+    loadImage(); 
   }, [])
   return (
     <ScrollView className="flex-1 bg-gray-100 px-4 py-1">
       {/* Profile Header */}
       {/* Profile Header with Background Image */}
-      <TouchableOpacity className=' border-2 border-red-600 w-24 rounded-3xl  absolute right-0' onPress={handleLogout}>
-        <Text className='text-md font-mediumM text-red-600 p-1 text-center'>Logout</Text>
+      <TouchableOpacity className=' border-2 border-red-600 px-4 rounded-xl  absolute bottom-2  right-0 flex-row justify-center items-center' onPress={handleLogout}>
+        <MaterialIcons name="logout" size={24} color="red" /><Text className='text-md font-mediumM text-red-600 p-1 text-center flex-row items-center'> Logout</Text>
       </TouchableOpacity>
        {/* Sticky Header */}
      
-        <ImageBackground
-          source={{
-            uri: 'https://img.freepik.com/free-vector/gradient-blue-background_23-2149347096.jpg?t=st=1735230231~exp=1735233831~hmac=b0ac2150a4f815ab509742e357df64e27cf156c85b585967cc87c43d08f90133&w=2000',
-          }}
-          resizeMode="cover"
-          className="h-44 bg-center rounded-lg p-6 justify-center items-center mt-10"
+        <View
+        
+          className="h-44 bg-center rounded-lg p-6 justify-center items-center mt-2 bg-[#3243da]"
         >
-          <Image
-            source={{
-              uri: 'https://randomuser.me/api/portraits/men/32.jpg',
-            }}
-            className="w-20 h-20 rounded-full mb-4"
-          />
+         <View className="flex-row items-end">
+      {image ? (
+        <Image
+          source={{ uri: image }}
+          className="w-24 h-24 rounded-full mb-2"
+        />
+      ) : (
+        <Image
+          source={{
+            uri: 'https://randomuser.me/api/portraits/men/32.jpg',
+          }}
+          className="w-24 h-24 rounded-full mb-2"
+        />
+      )}
+      <TouchableOpacity className="-ml-4 mb-2" onPress={pickImage}>
+        <Ionicons name="camera-reverse" size={32} color="white" />
+      </TouchableOpacity>
+    </View>
           <Text className="text-xl font-mediumM text-white tracking-wider">
             {student?.firstName} {student?.lastName}
           </Text>
           <Text className="text-sm font-mediumM text-white tracking-wider">
             {student?.className?.name} {student?.section?.name}
           </Text>
-        </ImageBackground>
+        </View>
       
      {!loading?
   <View>
@@ -144,14 +182,44 @@ const Profile = () => {
           <Text className="text-gray-600 font-mediumM">Mother Phone:</Text>
           <Text className="text-blue-800 font-mediumM">{student?.parent?.motherPhone}</Text>
         </View>
-        <View className="flex-row justify-between">
-          <Text className="text-gray-600 font-mediumM">Date of Birth:</Text>
-          <Text className="text-blue-800 font-mediumM">{student?.dateOfBirth?.split('T')[0]}</Text>
-        </View>
+       
       </View>
+      {/* Transport Details */}
+  {student?.transport ?     <View className="bg-white rounded-lg shadow-md p-6 mt-4 mb-12">
+        <Text className="text-lg font-mediumM text-blue-900 mb-4">Transport Details</Text>
+        <View className="flex-row justify-between mb-2">
+          <Text className="text-gray-600 font-mediumM">Bus Name:</Text>
+          <Text className="text-blue-800 font-mediumM"> {student?.transport?.bus?.name}</Text>
+        </View>
+        <View className="flex-row justify-between mb-2">
+          <Text className="text-gray-600 font-mediumM">Bus Number:</Text>
+          <Text className="text-blue-800 font-mediumM"> {student?.transport?.bus?.number}</Text>
+        </View>
+        <View className="flex-row justify-between mb-2">
+          <Text className="text-gray-600 font-mediumM">Driver Name:</Text>
+          <Text className="text-blue-800 font-mediumM"> {student?.transport?.bus?.driver?.name}</Text>
+        </View>
+        <View className="flex-row justify-between mb-2">
+          <Text className="text-gray-600 font-mediumM">Driver Phone:</Text>
+          <Text className="text-blue-800 font-mediumM"> {student?.transport?.bus?.driver?.phone}</Text>
+        </View>
+        <View className="flex-row justify-between mb-2">
+          <Text className="text-gray-600 font-mediumM">Route Name:</Text>
+          <Text className="text-blue-800 font-mediumM"> {student?.transport?.route?.name}</Text>
+        </View>
+        <View className="flex-row justify-between mb-2">
+          <Text className="text-gray-600 font-mediumM">Charge:</Text>
+          <Text className="text-blue-800 font-mediumM">Rs {student?.transport?.route?.charges}</Text>
+        </View>
+        
+      </View>: '' }
 
-      </View> :
-      <ActivityIndicator animating={true} color={'blue'} size={'large'} className='mt-20'/>}
+      </View> : 
+      <View className='h-[80vh]'>
+
+        <ActivityIndicator animating={true} color={'blue'} size={'large'} className='mt-20'/>
+      </View>
+        }
     </ScrollView>
   )
 }

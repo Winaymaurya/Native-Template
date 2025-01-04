@@ -1,72 +1,140 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, memo, useEffect } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Agenda } from 'react-native-calendars';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
-
+import apiClient from '../utils/axiosInstance';
+import { ActivityIndicator, MD2Colors } from 'react-native-paper';
 const Calendar = () => {
   const router = useRouter();
-
-  // Initial items state
-  const [items, setItems] = useState({
-    '2024-12-16': [{ name: 'Event 1' }],
-    '2024-12-19': [{ name: 'Event 5' }],
-    '2024-12-28': [{ name: 'Event 9' }],
-    '2024-12-17': [{ name: 'Event 2' }, { name: 'Event 3' }],
-  });
-
+  const [date, setDate] = useState(new Date())
+  const [items, setItems] = useState({});
   const itemsRef = useRef(items);
+  const [loading, setLoading] = useState(false)
 
+  // Function to fetch events and holidays
+  const fetchData = async () => {
+    setLoading(true)
+    try {
+      // Fetch both events and holidays
+      const [eventsResponse, holidaysResponse] = await Promise.all([
+        apiClient.get('event'),
+        apiClient.get('holiday'),
+      ]);
+
+      // Process events
+      const events = eventsResponse?.data?.data.map((event) => ({
+        date: event.date.split('T')[0], // Format YYYY-MM-DD
+        name: event.name,
+        type: 'Event',
+        id: event._id,
+      })) || [];
+
+      // Process holidays
+      const holidays = holidaysResponse?.data?.data.map((holiday) => ({
+        date: holiday.date.split('T')[0], // Format YYYY-MM-DD
+        name: holiday.name,
+        type: 'Holiday',
+        id: holiday._id,
+      })) || [];
+
+      // Combine events and holidays, grouped by date
+      const newItems = {};
+      [...events, ...holidays].forEach((item) => {
+        if (!newItems[item.date]) {
+          newItems[item.date] = [];
+        }
+
+        // Avoid duplicates using unique IDs
+        if (!newItems[item.date].find((existing) => existing.id === item.id)) {
+          newItems[item.date].push(item);
+        }
+      });
+
+      itemsRef.current = newItems; // Update ref
+      setItems(newItems); // Update state
+      setLoading(false)
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setLoading(false)
+    }
+  };
+
+  // Generate additional days dynamically
   const loadItems = (day) => {
-    const newItems = { ...itemsRef.current }; // Keep existing items
+    const newItems = { ...itemsRef.current };
 
-    // Generate additional days dynamically if necessary
-    for (let i = -15; i <= 15; i++) {
+    for (let i = -2; i <= 14; i++) {
       const time = day.timestamp + i * 24 * 60 * 60 * 1000; // Each day in milliseconds
-      const date = new Date(time).toISOString().split('T')[0]; // Format YYYY-MM-DD
+      const date = new Date(time).toISOString().split('T')[0];
 
-      // Add an empty array if the date doesn't already exist
       if (!newItems[date]) {
         newItems[date] = [];
       }
     }
 
-    itemsRef.current = newItems; // Update reference
+    itemsRef.current = newItems; // Update ref
     setItems(newItems); // Update state
   };
 
+  // Memoized RenderItem
+  const RenderItem = memo(({ item }) => (
+    <View
+      style={{
+        backgroundColor: item.type === 'Event' ? '#E3F2FD' : '#FFEBEE',
+        padding: 16,
+        borderRadius: 8,
+        marginTop: 25,
+      }}
+    >
+      <Text
+        style={{
+          color: item.type === 'Event' ? '#1E88E5' : '#D32F2F',
+          fontSize: 16,
+        }}
+      >
+        {item.name} ({item.type})
+      </Text>
+    </View>
+  ));
+
+  // Memoized RenderEmptyDate
+  const RenderEmptyDate = memo(() => (
+    <View className=' h-20 flex justify-end items-center mb-6 pb-6'>
+      <Text className='text-blue-800 font-mediumM'>No Events or Holidays on this Date</Text>
+    </View>
+  ));
+
+  // Fetch data on mount
+  useEffect(() => {
+    fetchData();
+  }, []);
   return (
     <View style={{ flex: 1 }}>
       {/* Header */}
-      <View style={{ backgroundColor: '#3243da', padding: 12, flexDirection: 'row', alignItems: 'center' }}>
-        <TouchableOpacity onPress={() => router.push('/Home')}>
+      <View className="bg-[#3243da] justify-start p-3 flex-row items-center">
+        <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={32} color="white" />
         </TouchableOpacity>
-        <Text style={{ color: 'white', fontSize: 20, marginLeft: 16 }}>School Calendar</Text>
+        <Text className="text-xl tracking-wider text-white ml-4 font-mediumM">
+          School Calendar
+        </Text>
       </View>
 
       {/* Agenda */}
-      <Agenda
+     {!loading ? <Agenda
         items={items}
-        selected={'2024-12-16'}
+        selected={date}
         loadItemsForMonth={loadItems}
-        renderItem={(item) => (
-          <View style={{ backgroundColor: '#E3F2FD', padding: 16, borderRadius: 8, marginTop:25 }}>
-            <Text style={{ color: '#1E88E5', fontSize: 16 }}>{item.name}</Text>
-          </View>
-        )}
-        renderEmptyDate={() => (
-          <View style={{ height: 60, justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ color: '#B0BEC5' }}>No Events on this Date</Text>
-          </View>
-        )}
+        renderItem={(item) => <RenderItem item={item} />}
+        renderEmptyDate={() => <RenderEmptyDate />}
         theme={{
           agendaDayTextColor: 'blue',
           agendaDayNumColor: 'blue',
           agendaTodayColor: 'red',
           agendaKnobColor: 'gray',
         }}
-      />
+      />:  <ActivityIndicator animating={true} color={'#3243da'} size={46} className='mt-20'/>} 
     </View>
   );
 };
