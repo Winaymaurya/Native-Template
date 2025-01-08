@@ -19,7 +19,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/s.gif",
+        "foregroundImage": "./assets/images/student.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.winaymaurya.Student"
@@ -32,15 +32,7 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/images/student.png",
-          "color": "#ffffff",
-          "sounds": ["./assets/images/saudio.wav"],
-          "mode": "production"
-        }
-      ],
+     
       [
         "expo-image-picker",
         {

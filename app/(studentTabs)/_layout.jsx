@@ -9,45 +9,42 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Badge } from 'react-native-paper';
 import apiClient from '../utils/axiosInstance';
 
-const CustomHeader = ({ studentClass, setBadge }) => {
-  const [name, setName] = useState('');
+const CustomHeader = ({ studentClass = 'Class Unavailable', setBadge }) => {
+  const [name, setName] = useState('Student Name');
   const [className, setClassName] = useState('');
-  const [image, setImage] = useState(null)
+  const [image, setImage] = useState(null);
   const router = useRouter();
+
   const fetchData = async () => {
     try {
       const storedName = await AsyncStorage.getItem('name');
       setName(storedName || 'Student Name');
-  
+
       const jsonValue = await AsyncStorage.getItem('student');
       const student = jsonValue ? JSON.parse(jsonValue) : null;
       setClassName(student?.className?.name || '');
-  
+
       const savedImage = await AsyncStorage.getItem('profilePhoto');
-      if (savedImage) {
-        setImage(savedImage);
-      } else {
-        setImage('https://via.placeholder.com/150'); // Default placeholder image
-      }
+      setImage(savedImage || 'https://via.placeholder.com/150'); // Use placeholder as fallback
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error fetching data from AsyncStorage:', error);
+      setImage('https://via.placeholder.com/150');
     }
   };
-  
 
   const getFeeHistory = async () => {
     const id = await AsyncStorage.getItem('studentId');
     try {
       const { data } = await apiClient.get(`studentFees/history/${id}`);
       if (data?.success) {
-        const newHistory = data?.data.length;
-        const storedHistory = await AsyncStorage.getItem('feeHistory');
+        const newHistory = data?.data.length || 0;
+        const storedHistory = (await AsyncStorage.getItem('feeHistory')) || '[]';
         if (storedHistory !== JSON.stringify(newHistory)) {
-          setBadge(true); // Update badge
+          setBadge(true);
         }
       }
     } catch (error) {
-      console.log(error);
+      console.log('Error fetching fee history:', error);
     }
   };
 
@@ -63,7 +60,11 @@ const CustomHeader = ({ studentClass, setBadge }) => {
         <Text className="text-[#CCCCFF] text-sm font-mediumM">{studentClass}</Text>
       </View>
       <TouchableOpacity onPress={() => router.push('/Profile')}>
-        <Image source={{ uri: image }} className="w-14 h-14 rounded-full mr-4" />
+        <Image
+          source={ { uri: image } }
+          className="w-14 h-14 rounded-full mr-4"
+          resizeMode="cover"
+        />
       </TouchableOpacity>
     </View>
   );
@@ -71,7 +72,7 @@ const CustomHeader = ({ studentClass, setBadge }) => {
 
 export default () => {
   const router = useRouter();
-  const [badge, setBadge] = useState(false); // Lifted badge state
+  const [badge, setBadge] = useState(false);
 
   return (
     <Tabs
@@ -99,12 +100,7 @@ export default () => {
         name="Home"
         options={{
           tabBarIcon: ({ color }) => <Ionicons name="home" size={28} color={color} />,
-          header: () => (
-            <CustomHeader
-              studentClass="Class 10-A"
-              setBadge={setBadge} // Pass setBadge to update badge state
-            />
-          ),
+          header: () => <CustomHeader studentClass="Class 10-A" setBadge={setBadge} />,
         }}
       />
       <Tabs.Screen
@@ -131,8 +127,7 @@ export default () => {
                     color: 'white',
                     fontSize: 10,
                   }}
-                >
-                </Badge>
+                />
               )}
             </View>
           ),

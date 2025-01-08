@@ -1,23 +1,28 @@
-import { View, Text, TouchableOpacity, ScrollView,Image,Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView,Image,Dimensions ,Alert} from 'react-native';
 import {useEffect,useState} from 'react';
 import { useRouter } from 'expo-router';
 import { BarChart } from 'react-native-chart-kit';
 import { PieChart } from 'react-native-chart-kit';
 import apiClient from '../utils/axiosInstance';
+
 import { ActivityIndicator, MD2Colors } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const Home = () => {
   const screenWidth = Dimensions.get('window').width;
+  const [presentCount, setPresentCount] = useState(0);
+  const [absentCount, setAbsentCount] = useState(0);
+ 
   const data = [
     {
       name: "Present",
-      attendance:80,
+      attendance:presentCount,
       color: "#b0e8c0",
       legendFontColor: "#7F7F7F",
       legendFontSize: 15,
     },
     {
       name: "Absent",
-      attendance: 20,
+      attendance: absentCount,
       color: "#ed9fa9",
       legendFontColor: "#7F7F7F",
       legendFontSize: 15,
@@ -44,8 +49,47 @@ const Home = () => {
       setLoading(false)
     }
   }
+
+  const getstudentAttendance=async()=>{
+    setLoading(true)
+    const student=await AsyncStorage.getItem("studentId")
+    const endDate=new Date().toISOString().split("T")[0];;
+    const startDate= '2024-03-01'
+    console.log(student,endDate,startDate)
+    try {
+      const { data } = await apiClient.get(`attendance/student`, {
+        params: {
+          student,
+          startDate,
+          endDate,
+        },
+      });
+      
+      if(data?.success){
+        let present = 0;
+       let absent = 0;
+
+   data?.data.forEach(({ isPresentA }) => {
+      if (isPresentA) {
+        present += 1;
+      } else {
+        absent += 1;
+      }
+    });
+    setPresentCount(present);
+    setAbsentCount(absent);
+   setLoading(false)
+  }
+} catch (error) {
+  console.log(error)
+  Alert.alert(error?.message)
+  setLoading(false)
+      
+    }
+  }
 useEffect(()=>{
  getNotice()
+ getstudentAttendance()
 },[])
   return (
     <>
@@ -77,7 +121,7 @@ useEffect(()=>{
         <Image source={require('./../../assets/images/test.png')} className=" h-14 w-14" />
           <View>
             <Text className="text-md text-white text-center w-28 p-1 font-regularM">
-              Daily Quiz
+              Play Quiz
             </Text>
           </View>
         </TouchableOpacity>
@@ -114,44 +158,60 @@ useEffect(()=>{
       </View>
       <ScrollView>
      <View className="px-6 mt-4">
-        <Text className="text-xl text-blue-800 tracking-wider font-mediumM font-semibold">
+        <Text className="text-xl text-blue-800 tracking-wider font-mediumM ">
           Notice Board
         </Text>
       </View>
-     {!loading ? 
-      <ScrollView
+{!loading ? (
+  notices.length > 0 ? (
+    <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{ paddingRight: 20 }}
       className="space-x-4 px-4 mt-2 mr-4"
-   
     >
       {notices.map((notice, i) => (
-         <View
-         key={notice._id}
-         className={`${colors[i % colors.length]} p-4 rounded-lg shadow-lg min-h-26`}
-         style={{
-           width: 280,
-           justifyContent: 'between',
-         }} // To ensure each notice has a minimum width
-       >
-         {new Date(date).toDateString() === new Date(notice.date).toDateString() ? (
-           <Image source={require('./../../assets/images/star.png')} className="h-10 w-10 absolute right-2 top-2" />
-         ) : (
-           ''
-         )}
+        <View
+          key={notice._id}
+          className={`${colors[i % colors.length]} p-4 rounded-lg shadow-lg min-h-26`}
+          style={{
+            width: 280,
+            justifyContent: 'space-between', // Correct alignment
+          }}
+        >
+          {new Date(date).toDateString() === new Date(notice.date).toDateString() ? (
+            <Image
+              source={require('./../../assets/images/star.png')}
+              className="h-10 w-10 absolute right-2 top-2"
+            />
+          ) : null}
 
-
-         <Text className="text-gray-600 text-sm  font-regularM">{notice.date.split("T")[0]}</Text>
-         <Text className=" font-semibold font-mediumM text-lg mb-2">{notice.title}</Text>
-         <Text className=" font-semibold font-mediumM text-md mb-2">{notice.description}</Text>
-       </View>
-
+          <Text className="text-gray-600 text-sm font-regularM">
+            {notice.date.split("T")[0]}
+          </Text>
+          <Text className="font-semibold font-mediumM text-lg mb-2">
+            {notice.title}
+          </Text>
+          <Text className="font-semibold font-mediumM text-md mb-2">
+            {notice.description}
+          </Text>
+        </View>
       ))}
     </ScrollView>
-    
-    
-      : <ActivityIndicator animating={true} color={'#3243da'} size={46} className='mt-10' />}
+  ) : (
+    <View className="flex justify-center items-center h-40">
+      <Text className="text-gray-600 text-lg font-medium">No recent notices</Text>
+    </View>
+  )
+) : (
+  <ActivityIndicator
+    animating={true}
+    color={'#3243da'}
+    size={46}
+    className="my-16"
+  />
+)}
+
 
       {/* <View style={{ padding: 20 }}>
       <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>
@@ -190,7 +250,7 @@ useEffect(()=>{
       <Text className='text-xl font-mediumM text-blue-800'>
         Attendance Summary
       </Text>
-      <PieChart
+    {!loading? <PieChart
         data={data}
         width={screenWidth - 40}
         height={160}
@@ -201,11 +261,16 @@ useEffect(()=>{
         backgroundColor={"transparent"}
         center={[10, 0]}
        
-      />
+      />: <ActivityIndicator
+    animating={true}
+    color={'#3243da'}
+    size={46}
+    className="my-16"
+  />}
     </View>
     </ScrollView>
     </>
-  );
+  );  
 };
 
 export default Home;

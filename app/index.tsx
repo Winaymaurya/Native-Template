@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import React,{ useEffect, useState } from "react";
 import { Text, TouchableOpacity, View, TextInput, Image, Alert, ScrollView, Keyboard, StatusBar } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts } from 'expo-font';
@@ -10,7 +10,7 @@ import {
 } from '@expo-google-fonts/montserrat';
 
 import apiClient from "./utils/axiosInstance";
-import * as Notifications from 'expo-notifications';
+// import * as Notifications from 'expo-notifications';
 
 export default function Index() {
   const router = useRouter();
@@ -27,10 +27,10 @@ export default function Index() {
         Alert.alert("Error", "Please enter both StudentID and password.");
         return;
       }
-      const deviceToken = (await Notifications.getExpoPushTokenAsync()).data;
-      console.log('Push Token:', deviceToken);
+      // const deviceToken = await handleNotifications();
+      // console.log('Push Token:', deviceToken);
       setLoading(true);
-      const payload = { studentId: id, password, deviceToken };
+      const payload = { studentId: id, password, deviceToken:'1313' };
       const { data } = await apiClient.post(`login/student`, payload);
       if (data?.success) {
         await AsyncStorage.setItem('token', data?.accessToken);
@@ -45,6 +45,7 @@ export default function Index() {
       setLoading(false);
     } catch (error) {
       console.log(error);
+      Alert.alert("Something went wrong")
       setLoading(false);
     }
   };
@@ -68,7 +69,19 @@ export default function Index() {
       setForgot(false);
     }
   };
-
+ 
+  // const handleNotifications = async () => {
+  //   const { status } = await Notifications.getPermissionsAsync();
+  //   if (status !== "granted") {
+  //     const { status: newStatus } = await Notifications.requestPermissionsAsync();
+  //     if (newStatus !== "granted") {
+  //       console.warn("Push notifications permissions not granted.");
+  //       return null;
+  //     }
+  //   }
+  //   const tokenData = await Notifications.getExpoPushTokenAsync();
+  //   return tokenData.data;
+  // };
   const [fontsLoaded] = useFonts({
     Montserrat_400Regular,
     Montserrat_500Medium,
@@ -170,7 +183,7 @@ export default function Index() {
       </ScrollView>
       {!isKeyboardVisible && (
         <View className="h-[16vh] bg-[#3243da] rounded-tl-[80%] flex items-center justify-end">
-          <Text className="text-center text-xs text-white font-mediumM mb-1">Powered by WeTe Solutions</Text>
+          <Text className="text-center text-xs text-white font-mediumM mb-1">Powered by WeTSolutions</Text>
         </View>
       )}
     </View>

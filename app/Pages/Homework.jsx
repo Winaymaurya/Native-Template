@@ -6,11 +6,24 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiClient from '../utils/axiosInstance';
 import { ActivityIndicator, MD2Colors } from 'react-native-paper';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 const Homework = () => {
   const [selectedHomework, setSelectedHomework] = useState({});
   const router = useRouter();
   const [homework, setHomework] = useState([])
   const [loading, setLoading] = useState(false)
+  const [date, setDate] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(false);
+
+
+  const onChange = (event, selectedDate) => {
+    setShowPicker(false);
+    if (selectedDate) {
+      setDate(selectedDate);
+      getHomework(selectedDate)
+    }
+  };
   // Sample array of homework items
   const openExternalLink = async (url) => {
     try {
@@ -26,13 +39,13 @@ const Homework = () => {
   };
 
   // Save completed homework to AsyncStorage
-const getHomework=async()=>{
+const getHomework=async(d)=>{
   setLoading(true)
   try {
-    const {data}=await apiClient.get('/task/student')
+    const {data}=await apiClient.get(`/task/student?date=${d}`)
     if(data?.success){
       setHomework(data?.data)
-      Alert.alert(data?.message)
+
     }
     setLoading(false)
   } catch (error) {
@@ -74,88 +87,103 @@ const getHomework=async()=>{
   // Load completed homework on component mount
   useEffect(() => {
     loadCompletedHomework();
-     getHomework()
+     getHomework(date)
   }, []);
 
   return (
     <View>
-      <View className="bg-[#3243da] justify-start p-3 flex-row items-center">
+      <View className="bg-[#3243da] p-3 flex-row  justify-between">
+        <View className='flex-row' >
+
+        
         <TouchableOpacity onPress={() => router.push('/Home')}>
           <Ionicons name="arrow-back" size={32} color="white" />
         </TouchableOpacity>
         <Text className="text-xl tracking-wider text-white ml-4 font-mediumM">
           Homework
-        </Text>
+        </Text></View>
+        <TouchableOpacity onPress={()=>setShowPicker(true)} className='mr-4'><FontAwesome5 name="calendar-alt" size={24} color="white" /></TouchableOpacity>
       </View>
-      {!loading? 
-      <ScrollView className="mb-16">
-        <View className="mx-4 mt-4">
-          <Text className="text-blue-900 font-mediumM text-xl mb-2">Today</Text>
+      <View className="mx-4 mt-4">
+       
+        <Text className="text-blue-900 font-mediumM text-xl mb-2">
+  {date.toLocaleDateString('en-US', {
+    weekday: 'long', // Adds the day of the week
+  })} ,
+   {date.getDate().toString().padStart(2, '0')}-{(date.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}-{date.getFullYear()}
+</Text>
+      </View>
+      {!loading ? (
+  homework.length > 0 ? (
+    <ScrollView className="mb-16">
+      
+      {homework.map((item) => (
+        <View key={item._id} className="mx-4 mb-4 border-2 border-gray-300 rounded-lg">
+          <View
+            className={`${
+              selectedHomework[item._id] ? 'bg-[#d8f0df]' : 'bg-[#d7e6f8]'
+            } flex-row items-start p-2 rounded-lg min-h-[14vh]`}
+          >
+            <CheckBox
+              style={{ paddingLeft: 4, marginTop: 10 }}
+              onClick={() => toggleSelection(item._id)}
+              isChecked={selectedHomework[item._id]}
+              checkBoxColor="blue"
+            />
+            <View className="px-4 w-[94%]">
+              <View className="mt-2 flex-row justify-between w-full flex-wrap mb-2">
+                <Text className="font-mediumM text-lg text-black">{item.subject}</Text>
+                <Text className="font-mediumM text-gray-500 text-lg">
+                  {item.date.split('T')[0].split('-').reverse().join('-')}
+                </Text>
+              </View>
+              <Text className="font-mediumM text-xl text-black mt-1 mb-2">{item.title}</Text>
+              <Text className="font-mediumM text-md text-gray-500 mt-1">{item.description}</Text>
+              <View className="mt-2 flex-row justify-between items-center w-[98%] flex-wrap mb-2">
+                {item?.file && (
+                  <TouchableOpacity
+                    onPress={() =>
+                      openExternalLink(
+                        `https://school-management-system-sms.s3.amazonaws.com/${item?.file}`
+                      )
+                    }
+                  >
+                    <Text className="text-blue-600 font-mediumM underline">
+                      Open Attachment
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                <Text className="font-mediumM text-black text-md">
+                  by: {item.createdBy.firstName} {item.createdBy.lastName}
+                </Text>
+              </View>
+            </View>
+          </View>
         </View>
-        {homework?.map((item) => (
-         <View key={item._id} className="mx-4 mb-4 border-2 border-[#3243da] rounded-2xl">
-         <View
-           className={`${
-             selectedHomework[item._id] ? 'bg-[#d8f0df]' : 'bg-[#d7e6f8]'
-           } flex-row items-center p-2  rounded-2xl min-h-[14vh]`}
-         >
-           <CheckBox
-             style={{
-               transform: [{ scale: 1.4 }],
-               paddingLeft: 6,
-             }}
-             onClick={() => toggleSelection(item._id)} // Toggle checkbox state
-             isChecked={selectedHomework[item._id]}
-             checkBoxColor="blue"
-           />
-           <View className="px-4 pl-6 w-[90%]">
-           <View className="mt-2 flex-row justify-between w-[100%] flex-wrap">
-               <Text className="font-mediumM text-blue-800">{item.date.split('T')[0]}</Text>
-             <Text className="font-mediumM text-md text-wrap text-blue-800">
-                {item.subject}
-               </Text>
-              
-
-             </View>
-               <Text className="font-mediumM text-lg text-wrap mt-1 text-blue-800">
-                 {item.title}
-               </Text>
-              
-             <Text className="font-mediumM text-md text-gray-500 mt-1 text-wrap ">
-               {item.description} 
-             </Text>
-       
-       
-             <View className="mt-2 flex-row justify-between items-center w-[98%] flex-wrap">
-            
-             {item?.file && (
-               <View>
-                 <TouchableOpacity
-                   onPress={() =>
-                     openExternalLink(
-                       `https://school-management-system-sms.s3.amazonaws.com/${item?.file}`
-                     )
-                   }
-                   className=""
-                 >
-                   <Text className="text-blue-600 font-mediumM underline">
-                     Open Attachment
-                   </Text>
-                 </TouchableOpacity>
-               </View>
-             )}
-               <Text className="font-mediumM text-blue-800">
-                 By- {item.createdBy.firstName} {item.createdBy.lastName}
-               </Text>
-              
-
-             </View>
-           </View>
-         </View>
-       </View>
-       
-        ))}
-      </ScrollView>:  <ActivityIndicator animating={true} color={'#3243da'} size={46} className='mt-20' />}
+      ))}
+    </ScrollView>
+  ) : (
+    <View className="mt-20">
+      <Text className="text-2xl text-gray-400 text-center font-mediumM">
+        No Homework for now, Enjoy!
+      </Text>
+    </View>
+  )
+) : (
+  <ActivityIndicator animating={true} color={'#3243da'} size={46} className="mt-20" />
+)}
+  
+  {showPicker && (
+        <DateTimePicker
+          value={date}
+          mode="date"
+          display="default"
+          onChange={onChange}
+          maximumDate={new Date()}
+        />
+      )}
     </View>
   );
 };
